@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Olá, Mundo Divertido Deluxe!</title>
+<style>
+    body {
+        background: radial-gradient(circle at top, #ffecd2, #9ffce0);
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+        color: #333;
+        overflow-x: hidden;
+    }
+
+    h1 {
+        font-size: 40px;
+        margin-bottom: 5px;
+        animation: pulse 2s infinite;
+    }
+
+    h2 {
+        margin-top: 0;
+        font-weight: normal;
+        color: #555555;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform-: scale(1); }
+    }
+
+    .painel {
+        max-width: 700px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .botoes {
+        margin-top: 15px;
+    }
+
+    button {
+        padding: 12px 18px;
+        margin: 6px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #61abff;
+        color: white;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #312eff;
+        transform: scale(1.07);
+    }
+
+    #resultado, #mensagem-mascote {
+        margin-top: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        min-height: 24px;
+    }
+
+    #pontuacao {
+        margin-top: 10px;
+        font-size: 18px;
+        color: #222;
+    }
+
+    .emoji-explosao {
+        position: fixed;
+        font-size: 24px;
+        pointer-events: none;
+        animation: subir 1s ease-out forwards;
+    }
+
+    @keyframes subir {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-120px); }
+    }
+
+    .mascote-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mascote {
+        font-size: 55px;
+        animation: balancar 2s infinite;
+    }
+
+    @keyframes balancar {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg); }
+        75% { transform: rotate(-5deg); }
+        100% { transform: rotate(0deg); }
+    }
+
+    .fala-mascote {
+        background: white;
+        border-radius: 15px;
+        padding: 10px 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        max-width: 350px;
+        font-size: 15px;
+    }
+</style>
+</head>
+<body>
+
+<div class="painel">
+    <h1>🌍 Olá, Mundo Divertido Deluxe! 🌈</h1>
+    <h2>Clique, jogue, ganhe pontos e se divirta!</h2>
+
+    <div class="botoes">
+        <button onclick="tocarSomClique(); saudar();">Dizer Olá</button>
+        <button onclick="tocarSomClique(); jogo();">Jogar Adivinhação</button>
+        <button onclick="tocarSomClique(); emoji();">Emoji da Sorte</button>
+        <button onclick="tocarSomClique(); surpresa();">Surpresa Misteriosa</button>
+        <button onclick="tocarSomClique(); jogoReflexo();">Jogo de Reflexo</button>
+    </div>
+
+    <div id="pontuacao">Pontuação: <span id="pontos">0</span></div>
+
+    <div id="resultado"></div>
+
+    <div class="mascote-container">
+        <div class="mascote">👦🏽</div>
+        <div class="fala-mascote" id="mensagem-mascote">
+            Oi! Eu sou o João, seu amigo em JavaScript. Vamos brincar?
+        </div>
+    </div>
+</div>
+
+<!-- Sons -->
+<audio id="som-clique">
+    <source src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" type="audio/ogg">
+</audio>
+<audio id="som-acerto">
+    <source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg">
+</audio>
+<audio id="som-erro">
+    <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
+</audio>
+
+<script>
+let pontos = 0;
+
+// Atualiza pontuação na tela
+function atualizarPontuacao(valor) {
+    pontos += valor;
+    if (pontos < 0) pontos = 0;
+    document.getElementById("pontos").textContent = pontos;
+}
+
+// Sons
+function tocarSomClique() {
+    const som = document.getElementById("som-clique");
+    som.currentTime = 0;
+    som.play().catch(() => {});
+}
+
+function tocarSomAcerto() {
+    const som = document.getElementById("som-acerto");
+    som.currentTime = 0;
+    som.play().catch(() => {});
+}
+
+function tocarSomErro() {
+    const som = document.getElementById("som-erro");
+    som.currentTime = 0;
+    som.play().catch(() => {});
+}
+
+// Mascote fala
+function falar(frase) {
+    document.getElementById("mensagem-mascote").textContent = frase;
+}
+
+// Explosão de emojis na tela
+function explosaoEmojis(emoji = "🎉", quantidade = 15) {
+    for (let i = 0; i < quantidade; i++) {
+        const span = document.createElement("span");
+        span.className = "emoji-explosao";
+        span.textContent = emoji;
+
+        const x = Math.random() * window.innerWidth;
+        const y = window.innerHeight - 50;
+
+        span.style.left = x + "px";
+        span.style.top = y + "px";
+
+        document.body.appendChild(span);
+
+        setTimeout(() => {
+            span.remove();
+        }, 1000);
+    }
+}
+
+// Funções de interação
+
+function saudar() {
+    const nome = prompt("Qual é o seu nome?");
+    if (!nome) {
+        document.getElementById("resultado").innerHTML = "Tudo bem, visitante misterioso! 😄";
+        falar("Você é misterioso, hein? Gosto disso.");
+        return;
+    }
+    document.getElementById("resultado").innerHTML =
+        `😄 Olá, ${nome}! Seja muito bem-vindo!`;
+    falar(`Adorei seu nome, ${nome}! Vamos ganhar alguns pontos?`);
+    atualizarPontuacao(1);
+}
+
+function jogo() {
+    const numero = Math.floor(Math.random() * 10) + 1;
+    const palpite = prompt("Adivinhe um número de 1 a 10:");
+
+    if (palpite === null) {
+        document.getElementById("resultado").innerHTML = "Você desistiu no meio do caminho. 😅";
+        falar("Sem problemas, a gente tenta de novo depois.");
+        return;
+    }
+
+    if (parseInt(palpite) === numero) {
+        document.getElementById("resultado").innerHTML =
+            "🎉 Incrível! Você acertou! +5 pontos!";
+        falar("Uau! Você manda bem demais!");
+        atualizarPontuacao(5);
+        tocarSomAcerto();
+        explosaoEmojis("🎉", 20);
+    } else {
+        document.getElementById("resultado").innerHTML =
+            `😅 Quase! O número era ${numero}. (-1 ponto)`;
+        falar("Foi por pouco! Tenta de novo, eu confio em você.");
+        atualizarPontuacao(-1);
+        tocarSomErro();
+    }
+}
+
+function emoji() {
+    const lista = ["🔥", "✨", "🌟", "💥", "🎈", "🎉", "🍀", "🦄", "😎", "🚀"];
+    const sorteado = lista[Math.floor(Math.random() * lista.length)];
+    document.getElementById("resultado").innerHTML =
+        `Seu emoji da sorte é: ${sorteado} (+2 pontos)`;
+    falar("Esse emoji combina muito com você!");
+    atualizarPontuacao(2);
+    explosaoEmojis(sorteado, 10);
+}
+
+function surpresa() {
+    const frases = [
+        "Você é mais incrível do que imagina!",
+        "Hoje é um ótimo dia para sorrir!",
+        "Algo muito bom está vindo aí!",
+        "Você tem uma energia única!",
+        "Continue brilhando, mesmo nos dias nublados.",
+        "Você já fez muita coisa difícil. Não pare agora."
+    ];
+    const escolha = frases[Math.floor(Math.random() * frases.length)];
+    document.getElementById("resultado").innerHTML = "💡 " + escolha + " (+1 ponto)";
+    falar("Eu realmente acredito em você, sabia?");
+    atualizarPontuacao(1);
+    explosaoEmojis("✨", 8);
+}
+
+// Mini-jogo de reflexo
+let reflexoAtivo = false;
+
+function jogoReflexo() {
+    if (reflexoAtivo) {
+        document.getElementById("resultado").innerHTML =
+            "Calma! Você já está jogando o reflexo. 😅";
+        return;
+    }
+
+    reflexoAtivo = true;
+    falar("Quando aparecer 'AGORA!' na tela, clique OK o mais rápido possível!");
+    document.getElementById("resultado").innerHTML =
+        "Prepare-se... o teste de reflexo vai começar!";
+
+    const tempoEspera = 1000 + Math.random() * 3000; // 1 a 4s
+
+    setTimeout(() => {
+        const inicio = performance.now();
+        const ok = confirm("AGORA! Clique em OK o mais rápido possível!");
+
+        if (ok) {
+            const fim = performance.now();
+            const tempo = Math.round(fim - inicio);
+
+            let mensagem = `⏱ Seu tempo foi: ${tempo} ms. `;
+            if (tempo < 250) {
+                mensagem += "Reflexo de ninja! +7 pontos!";
+                atualizarPontuacao(7);
+                tocarSomAcerto();
+                explosaoEmojis("⚡", 20);
+                falar("Você é rápido demais! Quase não consegui acompanhar!");
+            } else if (tempo < 500) {
+                mensagem += "Muito bom! +4 pontos!";
+                atualizarPontuacao(4);
+                falar("Reflexo afiado! Dá pra melhorar ainda mais.");
+            } else {
+                mensagem += "Dá pra treinar! +2 pontos!";
+                atualizarPontuacao(2);
+                falar("Nada mal! Bora tentar de novo depois?");
+            }
+
+            document.getElementById("resultado").innerHTML = mensagem;
+        } else {
+            document.getElementById("resultado").innerHTML =
+                "Você cancelou o teste de reflexo. Sem problemas!";
+            falar("Talvez na próxima você tope o desafio.");
+        }
+
+        reflexoAtivo = false;
+    }, tempoEspera);
+}
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Terraria Mini Insano</title>
+<style>
+  body {
+    margin:0;
+    overflow:hidden;
+    font-family: Arial, sans-serif;
+  }
+  #mundo {
+    position:relative;
+    width:2000px;
+    height:800px;
+    background:#87CEEB;
+    transition: background 1s linear;
+  }
+  #camera {
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+  }
+  .block {
+    position:absolute;
+    width:40px; height:40px;
+  }
+  .terra { background:#8B4513; }
+  .pedra { background:#555555; }
+  .folha { background:#228B22; }
+  .areia { background:#C2B280; }
+  .neve { background:#F0F8FF; }
+  .minerio { background:gold; }
+
+  #player {
+    position:absolute;
+    width:30px; height:40px;
+    background:#ff4444;
+  }
+
+  .enemy {
+    position:absolute;
+    width:30px; height:30px;
+    background:#4b0082;
+    border-radius:8px;
+  }
+
+  #ui {
+    position:fixed;
+    top:5px; left:5px;
+    background:rgba(0,0,0,0.6);
+    color:white;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    z-index:10;
+  }
+
+  #inventario {
+    margin-top:4px;
+    display:flex;
+    gap:4px;
+  }
+  .slot {
+    width:40px; height:40px;
+    border:1px solid #ccc;
+    background:#222;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    color:white;
+    font-size:11px;
+    border-radius:4px;
+  }
+  .slot.selecionado {
+    border:2px solid yellow;
+  }
+  .quant {
+    position:absolute;
+    bottom:2px; right:3px;
+    font-size:9px;
+  }
+
+  #mensagem {
+    margin-top:4px;
+    font-size:11px;
+  }
+
+  #vida {
+    color:#ff5555;
+  }
+
+  .coracao {
+    color:#ff5555;
+  }
+
+  #filtro-noite {
+    position:fixed;
+    top:0; left:0;
+    width:100vw; height:100vh;
+    pointer-events:none;
+    background:rgba(0,0,50,0.0);
+    transition: background 1s linear;
+    z-index:5;
+  }
+
+  .luz {
+    position:absolute;
+    pointer-events:none;
+    border-radius:50%;
+    mix-blend-mode:screen;
+    background:radial-gradient(circle, rgba(255,255,200,0.9) 0%, rgba(255,255,200,0.0) 70%);
+    width:200px; height:200px;
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  Vida: <span id="vidaTexto"></span><br>
+  Bloco/Ferramenta: <span id="itemAtual"></span><br>
+  <div id="inventario"></div>
+  <div id="mensagem"></div>
+</div>
+
+<div id="filtro-noite"></div>
+
+<div id="camera">
+  <div id="mundo">
+    <div id="player"></div>
+  </div>
+</div>
+
+<script>
+/* ================== VARIÁVEIS BÁSICAS ================== */
+const mundo = document.getElementById("mundo");
+const camera = document.getElementById("camera");
+const playerEl = document.getElementById("player");
+const vidaTexto = document.getElementById("vidaTexto");
+const inventarioEl = document.getElementById("inventario");
+const itemAtualEl = document.getElementById("itemAtual");
+const mensagemEl = document.getElementById("mensagem");
+const filtroNoite = document.getElementById("filtro-noite");
+
+const blocoL = 40;
+const blocoA = 40;
+
+let px = 200, py = 400, pvy = 0, pOnGround = false;
+let vidaMax = 5;
+let vida = vidaMax;
+let teclas = {};
+
+let tempo = 0; // vai controlar dia e noite
+let luzes = [];
+
+let blocos = [];
+let inimigos = [];
+let inventario = [
+  { id:"terra", nome:"Terra", qtd:20, tipo:"bloco" },
+  { id:"pedra", nome:"Pedra", qtd:15, tipo:"bloco" },
+  { id:"folha", nome:"Folha", qtd:10, tipo:"bloco" },
+  { id:"tocha", nome:"Tocha", qtd:3, tipo:"luz" },
+  { id:"espada", nome:"Espada", qtd:1, tipo:"arma" },
+  { id:"picareta", nome:"Picareta", qtd:1, tipo:"ferramenta" }
+];
+let slotSelecionado = 0;
+
+/* ================== FUNÇÕES UTIL ================== */
+
+function setMensagem(txt) {
+  mensagemEl.textContent = txt;
+}
+
+function atualizarVidaUI() {
+  let str = "";
+  for (let i = 0; i < vidaMax; i++) {
+    str += i < vida ? "❤️" : "🖤";
+  }
+  vidaTexto.innerHTML = str;
+}
+
+function atualizarInventarioUI() {
+  inventarioEl.innerHTML = "";
+  inventario.forEach((item, i) => {
+    const slot = document.createElement("div");
+    slot.className = "slot" + (i === slotSelecionado ? " selecionado" : "");
+    slot.innerHTML = item.id.toUpperCase().charAt(0);
+    const q = document.createElement("div");
+    q.className = "quant";
+    q.textContent = item.qtd;
+    slot.appendChild(q);
+    inventarioEl.appendChild(slot);
+  });
+  const atual = inventario[slotSelecionado];
+  itemAtualEl.textContent = atual.nome + " (" + atual.tipo + ")";
+}
+
+function getBlocoNaPos(gx, gy) {
+  return blocos.find(b => b.x === gx && b.y === gy);
+}
+
+function criarBloco(gx, gy, tipo) {
+  const b = document.createElement("div");
+  b.className = "block " + tipo;
+  b.dataset.tipo = tipo;
+  b.style.left = (gx * blocoL) + "px";
+  b.style.top = (mundo.offsetHeight - (gy+1)*blocoA) + "px";
+  mundo.appendChild(b);
+  blocos.push({ x:gx, y:gy, tipo, el:b });
+}
+
+function removerBloco(gx, gy) {
+  const idx = blocos.findIndex(b => b.x === gx && b.y === gy);
+  if (idx !== -1) {
+    blocos[idx].el.remove();
+    blocos.splice(idx, 1);
+  }
+}
+
+/* ================== GERAR MUNDO ================== */
+function gerarMundo() {
+  const largura = 50;
+
+  for (let x = 0; x < largura; x++) {
+    let alturaBase = 2 + Math.floor(Math.sin(x/5)*2);
+    let bioma;
+    if (x < 15) bioma = "floresta";
+    else if (x < 30) bioma = "deserto";
+    else bioma = "neve";
+
+    for (let y = 0; y <= alturaBase; y++) {
+      if (y === alturaBase) {
+        if (bioma === "floresta") criarBloco(x, y, "terra");
+        if (bioma === "deserto") criarBloco(x, y, "areia");
+        if (bioma === "neve") criarBloco(x, y, "neve");
+      } else {
+        if (Math.random() < 0.1 && y > 0) {
+          criarBloco(x, y, "minerio");
+        } else {
+          criarBloco(x, y, "pedra");
+        }
+      }
+    }
+
+    // árvores simples na floresta
+    if (bioma === "floresta" && Math.random() < 0.25) {
+      criarBloco(x, alturaBase+1, "terra");
+      criarBloco(x, alturaBase+2, "terra");
+      criarBloco(x, alturaBase+3, "folha");
+      criarBloco(x-1, alturaBase+3, "folha");
+      criarBloco(x+1, alturaBase+3, "folha");
+    }
+  }
+
+  // inimigos
+  criarInimigo(600, 500, "slime");
+  criarInimigo(1200, 500, "zumbi");
+}
+
+function criarInimigo(x, y, tipo) {
+  const el = document.createElement("div");
+  el.className = "enemy";
+  mundo.appendChild(el);
+  inimigos.push({
+    x, y, vx: tipo === "slime" ? 1.2 : 0.8,
+    vy: 0,
+    onGround:false,
+    tipo,
+    vida: tipo === "zumbi" ? 3 : 1,
+    el
+  });
+}
+
+/* ================== DIA E NOITE ================== */
+function atualizarCicloDiaNoite() {
+  tempo += 0.0015;
+  const t = (Math.sin(tempo) + 1) / 2; // 0 a 1
+  const r = Math.floor(135 + t*100);
+  const g = Math.floor(206 - t*60);
+  const b = Math.floor(235 - t*150);
+  mundo.style.background = `rgb(${r},${g},${b})`;
+
+  const escuro = 0.4 * t;
+  filtroNoite.style.background = `rgba(0,0,40,${escuro})`;
+}
+
+function eDeNoite() {
+  return (Math.sin(tempo) < -0.2); // metade escura
+}
+
+/* ================== LUZES (TOCHAS) ================== */
+function criarLuz(px, py) {
+  const el = document.createElement("div");
+  el.className = "luz";
+  mundo.appendChild(el);
+  luzes.push({ x:px, y:py, el });
+}
+
+function atualizarLuzes() {
+  luzes.forEach(l => {
+    l.el.style.left = (l.x - 100) + "px";
+    l.el.style.top = (mundo.offsetHeight - l.y - 100) + "px";
+  });
+}
+
+/* ================== INVENTÁRIO E CRAFTING ================== */
+function consumirItem(id) {
+  const item = inventario.find(i => i.id === id);
+  if (item && item.qtd > 0) {
+    item.qtd--;
+    atualizarInventarioUI();
+    return true;
+  }
+  return false;
+}
+
+function adicionarItem(id, qtd) {
+  let item = inventario.find(i => i.id === id);
+  if (!item) {
+    inventario.push({ id, nome:id, qtd, tipo:"bloco" });
+  } else {
+    item.qtd += qtd;
+  }
+  atualizarInventarioUI();
+}
+
+function tentarCrafting() {
+  // exemplo: 2 pedra + 1 folha -> 1 tocha
+  const pedra = inventario.find(i => i.id === "pedra");
+  const folha = inventario.find(i => i.id === "folha");
+  if (pedra && pedra.qtd >= 2 && folha && folha.qtd >= 1) {
+    pedra.qtd -= 2;
+    folha.qtd -= 1;
+    adicionarItem("tocha", 1);
+    setMensagem("Você criou uma TOCHA! (2 pedra + 1 folha)");
+  } else {
+    setMensagem("Você não tem materiais suficientes para craftar uma tocha.");
+  }
+  atualizarInventarioUI();
+}
+
+/* ================== CONTROLES ================== */
+document.addEventListener("keydown", e => {
+  teclas[e.key] = true;
+
+  if (e.key === " " && pOnGround) {
+    pvy = 15;
+    pOnGround = false;
+  }
+
+  if (e.key >= "1" && e.key <= "9") {
+    const idx = parseInt(e.key) - 1;
+    if (inventario[idx]) {
+      slotSelecionado = idx;
+      atualizarInventarioUI();
+    }
+  }
+
+  if (e.key === "c") {
+    tentarCrafting();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  teclas[e.key] = false;
+});
+
+/* ================== MOUSE: QUEBRAR/COLOCAR ================== */
+camera.addEventListener("mousedown", e => {
+  const rect = camera.getBoundingClientRect();
+  const mundoRect = mundo.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  const gx = Math.floor((mx + camera.scrollLeft + (mundoRect.left * -1)) / blocoL);
+  const gy = Math.floor(( (camera.offsetHeight - my) ) / blocoA);
+
+  const slot = inventario[slotSelecionado];
+
+  if (e.button === 0) {
+    // quebrar com mão ou picareta (mais "roleplay" que real)
+    const b = getBlocoNaPos(gx, gy);
+    if (b) {
+      removerBloco(gx, gy);
+      if (b.tipo === "pedra") adicionarItem("pedra", 1);
+      else if (b.tipo === "terra" || b.tipo === "areia" || b.tipo === "neve") adicionarItem("terra", 1);
+      else if (b.tipo === "folha") adicionarItem("folha", 1);
+      else if (b.tipo === "minerio") adicionarItem("pedra", 2);
+      setMensagem("Você quebrou um bloco de " + b.tipo + ".");
+    }
+  } else if (e.button === 2) {
+    e.preventDefault();
+    if (!slot) return;
+    if (slot.tipo === "bloco" && slot.qtd > 0) {
+      const b = getBlocoNaPos(gx, gy);
+      if (!b) {
+        criarBloco(gx, gy, slot.id);
+        slot.qtd--;
+        atualizarInventarioUI();
+        setMensagem("Você colocou um bloco de " + slot.id + ".");
+      }
+    } else if (slot.id === "tocha" && slot.qtd > 0) {
+      criarLuz(gx*blocoL + 20, gy*blocoA + 20);
+      slot.qtd--;
+      atualizarInventarioUI();
+      setMensagem("Você colocou uma TOCHA.");
+    }
+  }
+});
+
+/* ================== FÍSICA BÁSICA ================== */
+function aplicarFisica(x, y, vy, largura, altura) {
+  vy -= 0.8;
+  y += vy;
+
+  let onGround = false;
+  if (y < 0) {
+    y = 0;
+    vy = 0;
+    onGround = true;
+  }
+
+  const cx = (x + largura/2) / blocoL;
+  const gy = Math.floor(y / blocoA);
+
+  const blocoAbaixo = getBlocoNaPos(Math.floor(cx), gy-1);
+  if (blocoAbaixo && y <= gy*blocoA) {
+    y = gy*blocoA;
+    vy = 0;
+    onGround = true;
+  }
+
+  return { x, y, vy, onGround };
+}
+
+/* ================== DANO E COMBATE ================== */
+function danoNoPlayer(qtd) {
+  vida -= qtd;
+  if (vida < 0) vida = 0;
+  atualizarVidaUI();
+  if (vida === 0) {
+    setMensagem("Você foi derrotado! Recarregue a página para recomeçar.");
+  }
+}
+
+function checarAtaqueEspada() {
+  const slot = inventario[slotSelecionado];
+  if (!slot || slot.id !== "espada") return;
+
+  inimigos.forEach(inimigo => {
+    const dx = (px + 15) - (inimigo.x + 15);
+    const dy = (py + 20) - (inimigo.y + 15);
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 60) {
+      inimigo.vida -= 1;
+      setMensagem("Você acertou um " + inimigo.tipo + "!");
+    }
+  });
+
+  inimigos = inimigos.filter(i => {
+    if (i.vida <= 0) {
+      i.el.remove();
+      adicionarItem("terra", 1);
+      return false;
+    }
+    return true;
+  });
+}
+
+/* ================== LOOP DE JOGO ================== */
+function loop() {
+  // movimento horizontal
+  if (teclas["ArrowRight"] || teclas["d"]) px += 3;
+  if (teclas["ArrowLeft"] || teclas["a"]) px -= 3;
+
+  // pulo mais alto se segurar espaço
+  if (teclas[" "] && !pOnGround && pvy > 0) {
+    pvy += 0.1;
+  }
+
+  let res = aplicarFisica(px, py, pvy, 30, 40);
+  px = res.x; py = res.y; pvy = res.vy; pOnGround = res.onGround;
+
+  // inimigos
+  inimigos.forEach(inimigo => {
+    if (inimigo.tipo === "slime") {
+      if (Math.random() < 0.01 && inimigo.onGround) {
+        inimigo.vy = 12;
+      }
+    } else if (inimigo.tipo === "zumbi") {
+      inimigo.vx = (px > inimigo.x) ? 1 : -1;
+    }
+
+    inimigo.x += inimigo.vx;
+    const r = aplicarFisica(inimigo.x, inimigo.y, inimigo.vy, 30, 30);
+    inimigo.x = r.x; inimigo.y = r.y; inimigo.vy = r.vy; inimigo.onGround = r.onGround;
+
+    inimigo.el.style.left = inimigo.x + "px";
+    inimigo.el.style.top = (mundo.offsetHeight - inimigo.y - 30) + "px";
+
+    const dx = (px + 15) - (inimigo.x + 15);
+    const dy = (py + 20) - (inimigo.y + 15);
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 35 && vida > 0) {
+      danoNoPlayer(eDeNoite() ? 2 : 1);
+    }
+  });
+
+  // ataque de espada com Shift
+  if (teclas["Shift"]) {
+    checarAtaqueEspada();
+  }
+
+  // atualizar player
+  playerEl.style.left = px + "px";
+  playerEl.style.top = (mundo.offsetHeight - py - 40) + "px";
+
+  // câmera segue o player
+  let camX = px - window.innerWidth/2;
+  if (camX < 0) camX = 0;
+  if (camX > mundo.offsetWidth - window.innerWidth) camX = mundo.offsetWidth - window.innerWidth;
+  mundo.style.transform = `translateX(${-camX}px)`;
+
+  // dia/noite e luzes
+  atualizarCicloDiaNoite();
+  atualizarLuzes();
+
+  requestAnimationFrame(loop);
+}
+
+/* ================== INÍCIO ================== */
+gerarMundo();
+atualizarVidaUI();
+atualizarInventarioUI();
+setMensagem("Bem-vindo ao Terraria Mini Insano! Use C para craftar tochas, Shift para atacar de espada.");
+loop();
+</script>
+
+</body>
+</html>
